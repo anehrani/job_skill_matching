@@ -1,31 +1,18 @@
 #
 
 #
-import os
 import numpy as np
 import pandas as pd
-from fuzzywuzzy import fuzz
-from fuzzywuzzy import process
-import spacy
-from spacy.matcher import PhraseMatcher
-import csv
-import re
-import string
 from gensim import models
-from gensim import similarities
-import gensim.downloader as api
-from gensim.models import KeyedVectors
 
-
-from gensim.similarities import WmdSimilarity
 from gensim.corpora import Dictionary, MmCorpus
 from gensim import similarities
 
-from dataStream import CSVReader, CSVWriter
+from dataStream import CSVReader, CSVWriter, DataStreamer
 from utils import preprocess_text
 
 
-def compare_similarity_of_texts(data_path="../data/" ):
+def compare_similarity_of_texts( jobdescription_path , max_rows):
     """
     this function streams data (memory friendly) calculates the similarity matrix and write
     results to a csv file
@@ -37,17 +24,17 @@ def compare_similarity_of_texts(data_path="../data/" ):
     output: nothing
     """
     # Load the corpus from the Matrix Market format
-    job_descriptions_dict = Dictionary.load(data_path + 'job_descriptions_dict.dict')
-    index = similarities.MatrixSimilarity.load(data_path + 'similarity_index.index')
-    lsi_model = models.LsiModel.load( data_path +  "all_data_lsi_model.lsimodel" )
+    job_descriptions_dict = Dictionary.load( 'data/job_descriptions_dict.dict')
+    index = similarities.MatrixSimilarity.load( 'data/similarity_index.index')
+    lsi_model = models.LsiModel.load(  "data/all_data_lsi_model.lsimodel" )
 
-    data_streamer = CSVReader(data_path + "jobpostings.csv" )
+    data_streamer = DataStreamer( jobdescription_path, max_rows )
 
     # load job ids -> required in qriting
-    job_ids = np.load(data_path + 'job_ids.npy', allow_pickle=True)
+    job_ids = np.load('data/job_ids.npy', allow_pickle=True)
 
 
-    csvwriter = CSVWriter (job_ids, "../results/similarity_scores.csv", ["Job ID A", "Job ID B", "Similarity Score"] )
+    csvwriter = CSVWriter (job_ids, "results/similarity_scores.csv", ["Job ID A", "Job ID B", "Similarity Score"] )
 
     del job_ids
 
@@ -65,6 +52,7 @@ def compare_similarity_of_texts(data_path="../data/" ):
         csvwriter.write_similarity_to_csv( SimMat, row[0])
 
 
+
     csvwriter.file.close()
 
 
@@ -73,7 +61,7 @@ def compare_similarity_of_texts(data_path="../data/" ):
 
 
 
-def prepare_similarity_data(data_path='../data/jobpostings.csv', path_to_save="../data/"):
+def prepare_similarity_data(jobdescription_path, path_to_save="data/"):
         """
         this part can improve by implementing clustering techniques in case of dealing with Big data
         to refuse memory problems
@@ -83,7 +71,7 @@ def prepare_similarity_data(data_path='../data/jobpostings.csv', path_to_save=".
         :return:
         """
         # load files
-        df = pd.read_csv( data_path ).iloc[:100]
+        df = pd.read_csv( jobdescription_path ).iloc[:50] # just to make it run faster I limited to 100 data
 
         #(remove null data)
         df.dropna(subset=['Job Description'], inplace=True)
@@ -100,7 +88,7 @@ def prepare_similarity_data(data_path='../data/jobpostings.csv', path_to_save=".
 
         # create dictionary and save
         job_descriptions_dict = Dictionary(job_descriptions)
-        job_descriptions_dict.save('../data/job_descriptions_dict.dict')
+        job_descriptions_dict.save(path_to_save + 'job_descriptions_dict.dict')
 
         # Convert the job descriptions into a bag-of-words format
         job_descriptions_corpus = [job_descriptions_dict.doc2bow(doc) for doc in job_descriptions]
@@ -125,22 +113,23 @@ def prepare_similarity_data(data_path='../data/jobpostings.csv', path_to_save=".
         index.save(path_to_save + 'similarity_index.index')
 
 
-def measure_similarity():
-    prepare_similarity_data()
+def measure_similarity( jobdescription_path, max_rows ):
+    prepare_similarity_data( jobdescription_path )
 
     # build the similarity matrix here
-    compare_similarity_of_texts()
+    compare_similarity_of_texts( jobdescription_path, max_rows )
 
 
 if __name__ == "__main__":
     print("test ...")
     #
     # run this function only once!
-    prepare_similarity_data()
+    jobdescription_path = ""
+    prepare_similarity_data(jobdescription_path)
 
 
     # build the similarity matrix here
-    compare_similarity_of_texts()
+    compare_similarity_of_texts(jobdescription_path)
 
 
 
@@ -155,4 +144,4 @@ if __name__ == "__main__":
 
 
 
-print("Finished ... ")
+

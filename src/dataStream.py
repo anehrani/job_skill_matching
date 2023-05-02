@@ -19,9 +19,10 @@ class CSVReader:
 
 
 class DataStreamer:
-    def __init__(self, file_path):
+    def __init__(self, file_path, max_rows = 10):
 
-
+        self.max_rows = max_rows
+        self.current_row = 0
         if file_path.split(".")[-1] == "csv":
             self.file = open(file_path, 'r')
             self.reader = csv.reader(self.file)
@@ -38,10 +39,17 @@ class DataStreamer:
         return self
 
     def __next__(self):
+        if self.current_row >= self.max_rows:
+            self.file.close()
+            raise StopIteration
+        self.current_row +=1
+
         if self.ftype == "csv":
             return next(self.reader)
         elif self.ftype == "xlsx":
             return self.reader.__next__()
+
+
 
 
 

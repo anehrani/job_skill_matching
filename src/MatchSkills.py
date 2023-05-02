@@ -73,21 +73,22 @@ class comparingModel:
         return matched_skills
 
 
-def extractEntity():
-    copmare_engin = comparingModel()
+def extractEntity(jobdescription_path, skills_path, tech_skills, max_rows):
+    copmare_engin = comparingModel(  )
 
 
-    jobdescription_stream = DataStreamer("../data/jobpostings.csv")
+    jobdescription_stream = DataStreamer(jobdescription_path, max_rows=max_rows)
     # we can combine all skills and keepem in a single file to ease sreaming
-    skill_stream = DataStreamer("../data/Skills.xlsx")
+    # Note: better to unify the skills and tech skills and then use a single file (im skipping it now)
+    skill_stream = DataStreamer(skills_path, max_rows=max_rows)
 
     # preprocess text
     # df.dropna(subset=['Job Description'], inplace=True)
     # load job ids -> required in qriting
-    job_ids = np.load('../data/job_ids.npy', allow_pickle=True)
+    job_ids = np.load('data/job_ids.npy', allow_pickle=True)
 
 
-    csvwriter = CSVWriter (job_ids, "../results/JobEntities.csv", ["Job ID", "Entity"] )
+    csvwriter = CSVWriter (job_ids, "results/JobEntities.csv", ["Job ID", "Entity"] )
 
     del job_ids
 
@@ -108,15 +109,8 @@ def extractEntity():
                 continue
             extracted_entity.append( entity )
 
-            # just to check code working, number of data to be checked is limited to 100
-            if i>10: break # removing the break could cause running program for a long time
-
-
         # write the entity in csv file (if there sxists any)
         csvwriter.write_entity_to_csv(extracted_entity, jobdesc[0])
-
-        # just to check code working, number of data to be checked is limited to 100
-        if j>10: break
 
     csvwriter.file.close()
 
@@ -128,11 +122,9 @@ if __name__ == "__main__":
 
     print("testing")
 
-
-    extractEntity()
-
-
-
+    jobdescription_path=""
+    skills_path=""
+    extractEntity(jobdescription_path, skills_path)
 
 
 
@@ -141,5 +133,8 @@ if __name__ == "__main__":
 
 
 
-print("finished!")
+
+
+
+
 

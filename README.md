@@ -13,4 +13,12 @@ This will generate results and save them under results folder.
 
 Considerations and Possible Implementations:
 * This code could be very slow, so parallelization is necessary to run faster.
+* Data streaming is suitable for reading big data as it just loads a row every time
+
  
+ In this repo I am using pretrained language models to map text into an algebraic space and then use existing algorithms to 
+ find the possible similarities between description.
+
+
+Future improvements:
+This code   
