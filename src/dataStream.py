@@ -39,10 +39,11 @@ class DataStreamer:
         return self
 
     def __next__(self):
-        if self.current_row >= self.max_rows:
-            self.file.close()
-            raise StopIteration
-        self.current_row +=1
+        if self.max_rows>0:
+            if self.current_row >= self.max_rows:
+                self.file.close()
+                raise StopIteration
+            self.current_row +=1
 
         if self.ftype == "csv":
             return next(self.reader)
