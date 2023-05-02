@@ -24,13 +24,13 @@ Considerations and Possible Implementations:
  find the possible similarities between description.
 
 
-Future improvements:
+#Future improvements:
 This code loads all of the data  to the memory to calculate the similarity between descriptions.
 This method wont work for huge data, to solve that there are clustering techniques; where we can iteratively create clusters and keep only small part of the data on the memory.
 
 To extract entities from job description, current code will work with minor modification as im only streaming small amount of data at the same time 
 without need to the rest of the data.
-
+#Accuracy:
 I am currently using pretrained naive codes. In order to increase the accuracy we can fine tune existing models on our dataset for both cases. 
 
 NOTE: My suggestion is not to use python language for manipulating Big data. Although, python is very good for testing the models, it is very slow in manipulating big data. This is not because algorithm running slower on python as already algorithms are implemented in c.
